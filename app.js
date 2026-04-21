@@ -26,9 +26,12 @@ app.get("/:title", (req, res) => {
 app.put("/:title", (req, res) => {
     const bookname = req.params.title;
     const bookData = books.find(item => item.title.toLowerCase() === bookname.toLowerCase());
+
     if (bookData) {
-        Object.assign(bookData, req.body);
+        const { id, ...updates } = req.body;
+        Object.assign(bookData, updates);
         res.json(bookData);
+
     } else {
         res.status(404).json({ error: "Book not found" });
     }
@@ -43,22 +46,24 @@ function validateYear(req, res, next) {
 }
 
 app.post("/", validateYear, (req, res) => {
-    const newBook = req.body;
-    if (!newBook.title || !newBook.author || typeof newBook.isRead !== 'boolean' || !newBook.year) {
+    const { title, author, isRead, year } = req.body;
+
+    if (!title || !author || typeof isRead !== 'boolean' || !year) {
         return res.status(400).json({ error: "Invalid book data" });
     }
     
     const book = {
-        'id': books.length + 1,
-        'title': newBook.title,
-        'author': newBook.author,
-        'isRead': newBook.isRead,
-        'year': newBook.year
+        id: books.length > 0 ? books[books.length - 1].id + 1 : 1,
+        title,
+        author,
+        isRead,
+        year
     };
 
 
 
-    books.push(book);
+
+    books.push(book); 
     res.status(201).json(book);
 });
 
