@@ -44,8 +44,7 @@ const handleErrors = (req, res, next) => {
 };
 
 
-app.put(
-    "/books/:title",
+app.put("/books/:title",
 
     // 🟢 VALIDATION RULES (OPTIONAL FIELDS)
     body("title").optional().trim().notEmpty().withMessage("Title cannot be empty"),
@@ -55,7 +54,7 @@ app.put(
     body("isRead").optional().isBoolean().withMessage("isRead must be boolean").toBoolean(),
 
     body("year").optional().isInt({ min: 0, max: new Date().getFullYear() }).withMessage("Invalid year"),
-    
+
 
     handleErrors,
 
