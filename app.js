@@ -57,27 +57,39 @@ function validateYear(req, res, next) {
     next();
 }
 
-app.post("/books", validateYear, (req, res) => {
-    const { title, author, isRead, year } = req.body;
+app.post(
+    "/books",
 
-    if (!title || !author || typeof isRead !== 'boolean' || !year) {
-        return res.status(400).json({ error: "Invalid book data" });
+    // 🟢 RULES (middleware)
+    body("title").trim().notEmpty().withMessage("Title is required"),
+    body("author").trim().notEmpty().withMessage("Author is required"),
+    body("isRead").isBoolean().withMessage("isRead must be boolean"),
+    body("year").isInt({ min: 0, max: new Date().getFullYear() }),
+
+    // 🟢 CHECK ERRORS
+    (req, res) => {
+        const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
+
+        // 🟢 NORMAL LOGIC
+        const { title, author, isRead, year } = req.body;
+
+        const book = {
+            id: books.length + 1,
+            title,
+            author,
+            isRead,
+            year
+        };
+
+        books.push(book);
+        res.status(201).json(book);
     }
-    
-    const book = {
-        id: books.length > 0 ? books[books.length - 1].id + 1 : 1,
-        title,
-        author,
-        isRead,
-        year
-    };
+);
 
-
-
-
-    books.push(book); 
-    res.status(201).json(book);
-});
 
 app.delete("/books/:title", (req, res) => {
     const bookname = req.params.title;
