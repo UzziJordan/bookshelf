@@ -2,10 +2,15 @@ const express = require('express');
 const morgan = require('morgan');
 const helmet = require("helmet");
 const cors = require("cors");
+const rateLimit = require("express-rate-limit");
 const { body, validationResult } = require("express-validator");
 
 
 const app = express();
+app.use(rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 5 // limit each IP to 5 requests per windowMs
+}));
 
 app.use(morgan('dev'));
 app.use (express.json());
