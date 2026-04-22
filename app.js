@@ -35,20 +35,6 @@ app.get("/books/:title", (req, res) => {
     }
 })
 
-app.put("/books/:title", (req, res) => {
-    const bookname = req.params.title;
-    const bookData = books.find(item => item.title.toLowerCase() === bookname.toLowerCase());
-
-    if (bookData) {
-        const { id, ...updates } = req.body;
-        Object.assign(bookData, updates);
-        res.json(bookData);
-
-    } else {
-        res.status(404).json({ error: "Book not found" });
-    }
-});
-
 const handleErrors = (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -56,6 +42,43 @@ const handleErrors = (req, res, next) => {
     }
     next();
 };
+
+
+app.put(
+    "/books/:title",
+
+    // 🟢 VALIDATION RULES (OPTIONAL FIELDS)
+    body("title").optional().trim().notEmpty().withMessage("Title cannot be empty"),
+
+    body("author").optional().trim().notEmpty().withMessage("Author cannot be empty"),
+
+    body("isRead").optional().isBoolean().withMessage("isRead must be boolean").toBoolean(),
+
+    body("year").optional().isInt({ min: 0, max: new Date().getFullYear() }).withMessage("Invalid year"),
+    
+
+    handleErrors,
+
+    // 🟢 ROUTE LOGIC
+    (req, res) => {
+        const bookname = req.params.title;
+
+        const bookData = books.find(
+            item => item.title.toLowerCase() === bookname.toLowerCase()
+        );
+
+        if (!bookData) {
+            return res.status(404).json({ error: "Book not found" });
+        }
+
+        const { id, ...updates } = req.body;
+
+        Object.assign(bookData, updates);
+
+        res.json(bookData);
+    }
+);
+
 
 app.post("/books",
 
