@@ -1,18 +1,30 @@
 const express = require('express');
+const morgan = require('morgan');
+const { body, validationResult } = require("express-validator");
+
 const app = express();
 
+app.use(morgan('dev'));
 app.use (express.json());
+app.use(express.static("public"));
 
-app.get('/', (req, res) => {
+app.get('/books', (req, res) => {
+    const { read } = req.query; 
+
+    if (read !== undefined) {
+        const isRead = read === 'true'; 
+        const filteredBooks = books.filter(b => b.isRead === isRead);
+        return res.json(filteredBooks);
+    }
+
     res.json(books);
-}); 
-
+});
 let books = [
     { "id": 1, "title": "The Great Gatsby", "author": "F. Scott Fitzgerald", "isRead": true, "year": 1999 },
     { "id": 2, "title": "The Book of life", "author": "O. Fred Donald", "isRead": !true, "year": 2017 }
 ]
 
-app.get("/:title", (req, res) => {
+app.get("/books/:title", (req, res) => {
     const bookname = req.params.title;
     
     const bookData = books.find(item => item.title.toLowerCase() === bookname.toLowerCase());
@@ -23,7 +35,7 @@ app.get("/:title", (req, res) => {
     }
 })
 
-app.put("/:title", (req, res) => {
+app.put("/books/:title", (req, res) => {
     const bookname = req.params.title;
     const bookData = books.find(item => item.title.toLowerCase() === bookname.toLowerCase());
 
@@ -45,7 +57,7 @@ function validateYear(req, res, next) {
     next();
 }
 
-app.post("/", validateYear, (req, res) => {
+app.post("/books", validateYear, (req, res) => {
     const { title, author, isRead, year } = req.body;
 
     if (!title || !author || typeof isRead !== 'boolean' || !year) {
@@ -67,8 +79,8 @@ app.post("/", validateYear, (req, res) => {
     res.status(201).json(book);
 });
 
-app.delete("/:books", (req, res) => {
-    const bookname = req.params.books;
+app.delete("/books/:title", (req, res) => {
+    const bookname = req.params.title;
     const bookIndex = books.findIndex(item => item.title.toLowerCase() === bookname.toLowerCase());
     if (bookIndex !== -1) {
         const deletedBook = books.splice(bookIndex, 1)[0];
