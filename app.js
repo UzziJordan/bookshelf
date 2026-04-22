@@ -49,36 +49,32 @@ app.put("/books/:title", (req, res) => {
     }
 });
 
-function validateYear(req, res, next) {
-    const year = req.body.year;
-    if (year && (typeof year !== 'number' || year < 0 || year > new Date().getFullYear())) {
-        return res.status(400).json({ error: "Invalid year" });
+const handleErrors = (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
     }
     next();
-}
+};
 
-app.post(
-    "/books",
+app.post("/books",
 
     // 🟢 RULES (middleware)
     body("title").trim().notEmpty().withMessage("Title is required"),
     body("author").trim().notEmpty().withMessage("Author is required"),
-    body("isRead").isBoolean().withMessage("isRead must be boolean"),
-    body("year").isInt({ min: 0, max: new Date().getFullYear() }),
+    body("isRead").isBoolean().withMessage("isRead must be boolean").toBoolean(),
+    body("year").isInt({ min: 0, max: new Date().getFullYear() }).withMessage("Year must be a valid integer").toInt(),
+
+    handleErrors,
 
     // 🟢 CHECK ERRORS
     (req, res) => {
-        const errors = validationResult(req);
-
-        if (!errors.isEmpty()) {
-            return res.status(400).json({ errors: errors.array() });
-        }
 
         // 🟢 NORMAL LOGIC
         const { title, author, isRead, year } = req.body;
 
         const book = {
-            id: books.length + 1,
+            id: books.length > 0 ? books[books.length - 1].id + 1 : 1,
             title,
             author,
             isRead,
