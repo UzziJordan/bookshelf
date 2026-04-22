@@ -8,14 +8,13 @@ const { body, validationResult } = require("express-validator");
 
 const app = express();
 app.use(rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 5 // limit each IP to 5 requests per windowMs
+    windowMs: 60 * 1000, // 1 minute
+    max: 10 // limit each IP to 10 requests per windowMs
 }));
 
 app.use(morgan('dev'));
 app.use (express.json());
 app.use(helmet());
-app.use(cors({origin: "http://localhost:4000"}));
 app.use(express.static("public"));
 
 app.get('/books', (req, res) => {
