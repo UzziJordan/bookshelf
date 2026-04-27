@@ -95,7 +95,9 @@ app.post("/books",
     body("title").trim().notEmpty().withMessage("Title is required"),
     body("author").trim().notEmpty().withMessage("Author is required"),
     body("isRead").isBoolean().withMessage("isRead must be boolean").toBoolean(),
-    body("year").isInt({ min: 0, max: new Date().getFullYear() }).withMessage("Year must be a valid integer").toInt(),
+    body("year").isInt().withMessage("Year must be a number").bail()
+                .isInt({ min: 1900 }).withMessage("Invalid year").bail()
+                .isInt({ max: new Date().getFullYear() }).withMessage("Year can't be in the future").toInt(),
 
     handleErrors,
 
