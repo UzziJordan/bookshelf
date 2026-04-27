@@ -3,25 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My book Api</title>
+    <title>Book Shelf</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-    <form method="GET" style="align-items:center; justify-content: center; display: flex; flex-direction: column;">
-        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
-            <h1>My Book API</h1>
-            <h2>Login</h2>
+    <div class="container">
+        <h1>My Book Shelf</h1>
+        <div class="actions">
+            <a href="createform.html" class="btn primary">Add New Book</a>
         </div>
-        
-        <div style="display: flex; flex-direction: column; gap: 20px;">
-            <input name="username" type="text" placeholder="username">
-            <input name="password" type="password" placeholder="password">
+        <div id="book-list" class="book-grid">
+            <!-- Books will be loaded here -->
+            <p>Loading books...</p>
         </div>
-        
-        <button style="margin-top: 20px;">login</button>
+    </div>
 
-        <p>Not A User <span><a href="SignUp.html">Sign Up</a></span></p>
-
-    </form>
+    <script src="index.js"></script>
 </body>
 </html>

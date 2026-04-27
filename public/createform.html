@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Book - Book Shelf</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Add New Book</h1>
+        <div class="actions">
+            <a href="index.html" class="btn secondary">Back to List</a>
+        </div>
+        
+        <form id="create-book-form" class="form-card">
+            <div class="form-group">
+                <label for="title">Book Title</label>
+                <input type="text" id="title" name="title" required placeholder="Enter book title">
+            </div>
+            
+            <div class="form-group">
+                <label for="author">Author</label>
+                <input type="text" id="author" name="author" required placeholder="Enter author name">
+            </div>
+            
+            <div class="form-group">
+                <label for="year">Publication Year</label>
+                <input type="number" id="year" name="year" required placeholder="e.g. 2024">
+            </div>
+            
+            <div class="form-group checkbox-group">
+                <input type="checkbox" id="isRead" name="isRead">
+                <label for="isRead">I have read this book</label>
+            </div>
+            
+            <button type="submit" class="btn primary full-width">Create Book</button>
+        </form>
+    </div>
+
+    <script src="create.js"></script>
+</body>
+</html>

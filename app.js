@@ -9,13 +9,18 @@ const { body, validationResult } = require("express-validator");
 const app = express();
 app.use(rateLimit({
     windowMs: 60 * 1000, // 1 minute
-    max: 10 // limit each IP to 10 requests per windowMs
+    max: 100 // limit each IP to 100 requests per windowMs
 }));
 
 app.use(morgan('dev'));
 app.use (express.json());
 app.use(helmet());
 app.use(express.static("public"));
+
+let books = [
+    { "id": 1, "title": "The Great Gatsby", "author": "F. Scott Fitzgerald", "isRead": true, "year": 1999 },
+    { "id": 2, "title": "The Book of life", "author": "O. Fred Donald", "isRead": false, "year": 2017 }
+]
 
 app.get('/books', (req, res) => {
     const { read } = req.query; 
@@ -28,10 +33,6 @@ app.get('/books', (req, res) => {
 
     res.json(books);
 });
-let books = [
-    { "id": 1, "title": "The Great Gatsby", "author": "F. Scott Fitzgerald", "isRead": true, "year": 1999 },
-    { "id": 2, "title": "The Book of life", "author": "O. Fred Donald", "isRead": !true, "year": 2017 }
-]
 
 app.get("/books/:title", (req, res) => {
     const bookname = req.params.title;
@@ -118,9 +119,9 @@ app.post("/books",
 );
 
 
-app.delete("/books/:title", (req, res) => {
-    const bookname = req.params.title;
-    const bookIndex = books.findIndex(item => item.title.toLowerCase() === bookname.toLowerCase());
+app.delete("/books/:id", (req, res) => {
+    const id = parseInt(req.params.id);
+    const bookIndex = books.findIndex(item => item.id === id);
     if (bookIndex !== -1) {
         const deletedBook = books.splice(bookIndex, 1)[0];
         res.json(deletedBook);
