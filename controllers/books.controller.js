@@ -1,7 +1,4 @@
-let books = [
-    { "id": 1, "title": "The Great Gatsby", "author": "F. Scott Fitzgerald", "isRead": true, "year": 1999 },
-    { "id": 2, "title": "The Book of life", "author": "O. Fred Donald", "isRead": false, "year": 2017 }
-]
+
 
 
 function getAllBooks(req, res) {
