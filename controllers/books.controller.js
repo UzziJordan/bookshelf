@@ -1,8 +1,13 @@
+const { myDb } = require('../config/db')
 
-
-
-function getAllBooks(req, res) {
+async function getAllBooks(req, res) {
     const { read } = req.query; 
+
+    const database = myDb.db('devkay');
+    const collection = database.collection('books');
+
+    const cursor = await collection.find({isRead: false});
+    const books = await cursor.toArray();
 
     if (read !== undefined) {
         const isRead = read === 'true'; 
