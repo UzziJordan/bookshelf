@@ -1,45 +1,30 @@
 const { MongoClient } = require('mongodb');
+require('dotenv').config();
 
-
-// let books = [
-//   { "title": "Harry Potter", "author": "J.K Rowling", "isRead": true, "publishedYear": 1997 },
-//   { "title": "Game of Thrones", "author": "George R.R Martin", "isRead": false, "publishedYear": 1996 },
-//   { "title": "Rich Dad Poor Dad", "author": "Robert Kiyosaki", "isRead": true, "publishedYear": 1997 }
-// ]
 let myDb;
 
 async function connectDb() {
-  // Replace the uri string with your connection string
-  const uri = 'mongodb+srv://fikkii:thisisthepassword@cluster0.pt46zmv.mongodb.net/?appName=Cluster0';
-  myDb = new MongoClient(uri);
-
-  await myDb.connect();
-
   try {
-    //CREATE OPERATIONS
-    // const database = myDb.db('devkay');
-    // const movies = database.collection('books');
+    const uri = process.env.MONGO_URI;
 
-    // // // Queries for a movie that has a title value of 'Back to the Future'
-    // // const query = [{ title: 'In the Beginning' }];
+    const client = new MongoClient(uri);
 
-    // const movie = await movies.insertMany(books);
+    await client.connect();
 
-    // //READ OPERATIONS
-    // const database = myDb.db('devkay');
-    // const collection = database.collection('books');
-
-    // const cursor = await collection.find({isRead: false});
-    // const movies = await cursor.toArray();
+    myDb = client.db('devkay');
 
     console.log("Database Connected Successfully...");
-  } finally {
-    await myDb.close();
+  } catch (error) {
+    console.error("Database connection failed:", error);
+    process.exit(1);
   }
 }
 
-function getDb(){
-    return myDb
+function getDb() {
+  if (!myDb) {
+    throw new Error("Database not initialized. Call connectDb first.");
+  }
+  return myDb;
 }
 
-module.exports = { connectDb, getDb }
+module.exports = { connectDb, getDb };

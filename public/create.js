@@ -10,7 +10,7 @@ document.getElementById('create-book-form').addEventListener('submit', async (e)
     };
 
     try {
-        const response = await fetch('/books', {
+        const response = await fetch('/api/books', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

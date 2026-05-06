@@ -4,27 +4,64 @@ const helmet = require("helmet");
 const cors = require("cors");
 const rateLimit = require("express-rate-limit");
 
+require('dotenv').config();
+
 const userRouter = require('./routes/user.routes');
 const bookRouter = require('./routes/books.routes');
-const foodRouter = require('./routes/food.routes');
+// const foodRouter = require('./routes/food.routes'); // remove if not used
 
-const { connectDb } = require('./config/db')
+const { connectDb } = require('./config/db');
 
 const app = express();
+
+/* ================= MIDDLEWARE ================= */
+
+// Security
+app.use(helmet());
+
+// Rate Limiting
 app.use(rateLimit({
-    windowMs: 60 * 1000, // 1 minute
-    max: 100 // limit each IP to 100 requests per windowMs
+  windowMs: 60 * 1000, // 1 minute
+  max: 100
 }));
 
+// CORS
+app.use(cors());
+
+// Logger
 app.use(morgan('dev'));
-app.use (express.json());
-app.use(helmet());
+
+// Body Parser
+app.use(express.json());
+
+// Static files
 app.use(express.static("public"));
 
-app.use('/users', userRouter);
-app.use('/books', bookRouter);
+/* ================= ROUTES ================= */
 
-app.listen(4000, async () => {
-    await connectDb()
-    console.log('Server is running on port localhost:4000');
+app.use('/api/users', userRouter);
+app.use('/api/books', bookRouter);
+
+// Global Error Handler
+app.use((err, req, res, next) => {
+  console.error("Unhandled Error:", err);
+  res.status(500).json({ error: err.message || "Internal Server Error" });
 });
+
+/* ================= START SERVER ================= */
+
+async function startServer() {
+  try {
+    await connectDb(); // ✅ connect FIRST
+
+    app.listen(4000, () => {
+      console.log('Server is running on http://localhost:4000');
+    });
+
+  } catch (error) {
+    console.error("Failed to start server:", error);
+    process.exit(1);
+  }
+}
+
+startServer();

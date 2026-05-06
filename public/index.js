@@ -1,6 +1,6 @@
 async function fetchBooks() {
     try {
-        const response = await fetch('/books');
+        const response = await fetch('/api/books');
         const books = await response.json();
         displayBooks(books);
     } catch (error) {
@@ -22,7 +22,7 @@ function displayBooks(books) {
             <p><strong>Author:</strong> ${book.author}</p>
             <p><strong>Year:</strong> ${book.year}</p>
             <p><strong>Status:</strong> ${book.isRead ? 'Read' : 'Unread'}</p>
-            <button class="btn delete" data-id="${book.id}" data-title="${book.title}">Delete</button>
+            <button class="btn delete" data-id="${book._id}" data-title="${book.title}">Delete</button>
         </div>
     `).join('');
 
@@ -40,7 +40,7 @@ async function deleteBook(id, title) {
     if (!confirm(`Are you sure you want to delete "${title}"?`)) return;
 
     try {
-        const response = await fetch(`/books/${id}`, {
+        const response = await fetch(`/api/books/${id}`, {
             method: 'DELETE'
         });
 

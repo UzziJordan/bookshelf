@@ -1,85 +1,136 @@
-const { myDb } = require('../config/db')
+const { getDb } = require('../config/db');
+const { ObjectId } = require('mongodb');
 
+/* ================= GET ALL BOOKS ================= */
 async function getAllBooks(req, res) {
-    const { read } = req.query; 
+  const { read } = req.query;
 
-    const database = myDb.db('devkay');
-    const collection = database.collection('books');
+  try {
+    const db = getDb();
+    const collection = db.collection('books');
 
-    const cursor = await collection.find({isRead: false});
-    const books = await cursor.toArray();
+    let query = {};
 
     if (read !== undefined) {
-        const isRead = read === 'true'; 
-        const filteredBooks = books.filter(b => b.isRead === isRead);
-        return res.json(filteredBooks);
+      query.isRead = read === 'true';
     }
+
+    const books = await collection.find(query).toArray();
 
     res.json(books);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 }
 
-function getBooksById(req, res){
-    const bookname = req.params.title;
-    
-    const bookData = books.find(item => item.title.toLowerCase() === bookname.toLowerCase());
-    if (bookData) {
-        res.json(bookData);
-    } else {
-        res.status(404).json({ error: "Book not found" });
+/* ================= GET BOOK BY TITLE ================= */
+async function getBooksById(req, res) {
+  const bookname = req.params.title;
+
+  try {
+    const db = getDb();
+    const collection = db.collection('books');
+
+    const book = await collection.findOne({
+      title: { $regex: new RegExp(`^${bookname}$`, "i") }
+    });
+
+    if (!book) {
+      return res.status(404).json({ error: "Book not found" });
     }
+
+    res.json(book);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 }
 
-// 🟢 ROUTE LOGIC
-function updateBooksById(req, res){
-    const bookname = req.params.title;
+/* ================= UPDATE BOOK ================= */
+async function updateBooksById(req, res) {
+  const bookname = req.params.title;
 
-    const bookData = books.find(
-        item => item.title.toLowerCase() === bookname.toLowerCase()
+  try {
+    const db = getDb();
+    const collection = db.collection('books');
+
+    const { _id, ...updates } = req.body;
+
+    const result = await collection.findOneAndUpdate(
+      { title: { $regex: new RegExp(`^${bookname}$`, "i") } },
+      { $set: updates },
+      { returnDocument: "after" }
     );
 
-    if (!bookData) {
-        return res.status(404).json({ error: "Book not found" });
+    // 🔴 FIX: result.value is what matters
+    if (!result.value) {
+      return res.status(404).json({ error: "Book not found" });
     }
 
-    const { id, ...updates } = req.body;
-
-    Object.assign(bookData, updates);
-
-    res.json(bookData);
+    res.json(result.value);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 }
 
-function createBooks(req, res) {
+/* ================= CREATE BOOK ================= */
+async function createBooks(req, res) {
+  const { title, author, isRead, year } = req.body;
 
-    const { title, author, isRead, year } = req.body;
+  try {
+    const db = getDb();
+    const collection = db.collection('books');
 
-    const book = {
-        id: books.length > 0 ? books[books.length - 1].id + 1 : 1,
-        title,
-        author,
-        isRead,
-        year
+    const newBook = {
+      title,
+      author,
+      isRead,
+      year
     };
 
-    books.push(book);
-    res.status(201).json(book);
+    const result = await collection.insertOne(newBook);
+
+    res.status(201).json({
+      _id: result.insertedId,
+      ...newBook
+    });
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 }
 
-function deleteBooks(req, res) {
-    const id = parseInt(req.params.id);
-    const bookIndex = books.findIndex(item => item.id === id);
-    if (bookIndex !== -1) {
-        const deletedBook = books.splice(bookIndex, 1)[0];
-        res.json(deletedBook);
-    } else {
-        res.status(404).json({ error: "Book not found" });
+/* ================= DELETE BOOK ================= */
+async function deleteBooks(req, res) {
+  const { id } = req.params;
+
+  try {
+    const db = getDb();
+    const collection = db.collection('books');
+
+    // 🔴 FIX: Validate ObjectId
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).json({ error: "Invalid ID format" });
     }
-}
 
+    const result = await collection.findOneAndDelete({
+      _id: new ObjectId(id)
+    });
+
+    if (!result.value) {
+      return res.status(404).json({ error: "Book not found" });
+    }
+
+    res.json(result.value);
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
 
 module.exports = {
-    getAllBooks,
-    getBooksById,
-    updateBooksById,
-    createBooks,
-    deleteBooks
-}
+  getAllBooks,
+  getBooksById,
+  updateBooksById,
+  createBooks,
+  deleteBooks
+};
