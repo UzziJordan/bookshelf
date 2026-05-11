@@ -10,7 +10,7 @@ let myDb;
 
 async function connectDb() {
   // Replace the uri string with your connection string
-  const uri = 'mongodb+srv://fikkii:thisisthepassword@cluster0.pt46zmv.mongodb.net/?appName=Cluster0';
+  const uri = 'mongodb://uzzij:Chemistry10@ac-z1imwk3-shard-00-00.zjv7jbk.mongodb.net:27017,ac-z1imwk3-shard-00-01.zjv7jbk.mongodb.net:27017,ac-z1imwk3-shard-00-02.zjv7jbk.mongodb.net:27017/?ssl=true&replicaSet=atlas-ulr49u-shard-0&authSource=admin&appName=Cluster0';
   myDb = new MongoClient(uri);
 
   await myDb.connect();
